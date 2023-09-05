@@ -7,7 +7,7 @@ function App() {
     <main className="app transition-all ease-in">
       <Home />
       <Customizer />
-      <Canvas />
+      <Canvas/>
     </main>
   )
 }

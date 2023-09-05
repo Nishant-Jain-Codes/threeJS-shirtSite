@@ -14,7 +14,7 @@ const Customizer = () => {
 
     const [file, setFile] = useState('');
     const [prompt, setPrompt] = useState('');
-    const [geratingImg, setGeneratingImg] = useState(false);
+    const [generatingImg, setGeneratingImg] = useState(false);
     const [activeEditorTab, setActiveEditorTab] = useState('');
     const [activeFilterTab, setActiveFilterTab] = useState({
         logoShirt: true,
@@ -32,10 +32,48 @@ const Customizer = () => {
                     readFile={readFile}
                 />;
             case "aipicker":
-                return <AIPicker />;
+                return <AIPicker
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    generatingImg={generatingImg}
+                    handleSubmit={handleSubmit}
+                />;
             default:
                 return null;
         }
+    }
+    // function to handle the submit button for the AI tab
+    const handleSubmit = async (type) => {
+        if (!prompt) return alert('Please enter a prompt!');
+        try {
+            // call the api to generate the image
+            setGeneratingImg(true);
+            const response = await fetch(config.development.backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt,
+                })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                // Handle the error gracefully, e.g., display an error message
+                alert(`Error: ${errorData.message}`);
+            } else {
+                // If the response is OK, proceed with processing the data
+                const data = await response.json();
+                handleDecals(type, `data:image/png;base64,${data.image}`);
+            }
+        } catch (err) {
+            alert(err);
+            console.log(err)
+        } finally {
+            setGeneratingImg(false);
+            setActiveEditorTab("");
+        }
+
     }
 
     // download the image and reset the state
@@ -97,7 +135,7 @@ const Customizer = () => {
                                         <Tab
                                             key={tab.name}
                                             tab={tab}
-                                            handleClick={() => { setActiveEditorTab(tab.name) }}
+                                            handleClick={() => { setActiveEditorTab(tab.name===activeEditorTab?'':tab.name) }}
                                         />
                                     ))
                                 }
@@ -132,6 +170,13 @@ const Customizer = () => {
                                 />
                             ))
                         }
+                        <button className='download-btn' onClick={downloadCanvasToImage}>
+                            <img
+                                src={download}
+                                alt='download_image'
+                                className='w-3/5 h-3/5 object-contain'
+                            />
+                        </button>
                     </motion.div>
                 </>
             )}

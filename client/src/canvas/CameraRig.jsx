@@ -29,7 +29,7 @@ const CameraRig = ({children}) => {
     //set teh model rotation to the mouse position
     easing.dampE(
       group.current.rotation,
-      [state.pointer.y/5,-state.pointer.x/5,0],
+      [state.pointer.y/3,-state.pointer.x/3,0],
       0.25,
       delta
     )
